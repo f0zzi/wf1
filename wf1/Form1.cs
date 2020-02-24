@@ -12,12 +12,13 @@ namespace wf1
 {
     public partial class Form1 : Form
     {
+        double totalSum = 0;
         float[] OilPrices = { 10, 12, 14 };
         public Form1()
         {
             InitializeComponent();
             cbOil.SelectedIndex = 0;
-            lbSumOil.Text = lbSumFood.Text = lbSumTotal.Text = "0,00";
+            lbSumOil.Text = lbSumFood.Text = lbSumTotal.Text = "0";
         }
 
         private void TextBox8_KeyPress(object sender, KeyPressEventArgs e)
@@ -82,8 +83,58 @@ namespace wf1
             else
             {
                 tbQuantityOil.Text = tbMoneyOil.Text = "";
-                lbSumOil.Text = "0,00";
+                lbSumOil.Text = "0";
             }
+        }
+
+        private void TbFood_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar != Convert.ToChar(Keys.Back))
+            {
+                if (!Char.IsDigit(e.KeyChar))
+                    e.Handled = true;
+            }
+        }
+        private double Recalc()
+        {
+            double sum = 0;
+            if (tbHotdog.Enabled && !String.IsNullOrWhiteSpace(tbHotdog.Text))
+                sum += Convert.ToDouble(tbHotdog.Text) * Convert.ToDouble(tbPriceHotdog.Text);
+            if (tbBurger.Enabled && !String.IsNullOrWhiteSpace(tbBurger.Text))
+                sum += Convert.ToDouble(tbBurger.Text) * Convert.ToDouble(tbPriceBurger.Text);
+            if (tbFri.Enabled && !String.IsNullOrWhiteSpace(tbFri.Text))
+                sum += Convert.ToDouble(tbFri.Text) * Convert.ToDouble(tbPriceFri.Text);
+            if (tbCola.Enabled && !String.IsNullOrWhiteSpace(tbCola.Text))
+                sum += Convert.ToDouble(tbCola.Text) * Convert.ToDouble(tbCola.Text);
+            return sum;
+        }
+        private void TbFood_TextChanged_1(object sender, EventArgs e)
+        {
+            lbSumFood.Text = Recalc().ToString();
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            lbSumTotal.Text = (Convert.ToDouble(lbSumOil.Text) + Convert.ToDouble(lbSumFood.Text)).ToString();
+            timer1.Start();
+        }
+        private void Reset()
+        {
+            totalSum += Convert.ToDouble(lbSumTotal.Text);
+            cbOil.SelectedIndex = 0;
+            lbSumOil.Text = lbSumFood.Text = lbSumTotal.Text = "0";
+        }
+        private void Timer1_Tick(object sender, EventArgs e)
+        {
+            timer1.Stop();
+            CheckOut();
+        }
+        private void CheckOut()
+        {
+            if (MessageBox.Show("Check out?", "Checkout message", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.OK)
+                Reset();
+            else
+                timer1.Start();
         }
     }
 }
